@@ -19,4 +19,8 @@ public class Clause {
         }
         return a;
     }
+
+    public ArrayList<String> getFirstPred(){
+        return predList.get(0).getAsStringList();
+    }
 }

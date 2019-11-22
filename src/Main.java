@@ -53,11 +53,11 @@ public class Main{
         Helper.testUnify();
 
         //testUnify();
-
-        search(kb1, g1);
+        run_bfs(g1, kb1);
+        //search(kb1, g1);
     }
 
-    // Run the
+    // Might not call this anymore...
     public void search(ArrayList<Clause> kb, Clause goal){
         // Uniquify kb
         uniquify(goal);
@@ -72,7 +72,7 @@ public class Main{
         openStack.add(goal); // Add the goal clause to the openStack
 
         System.out.println("\nTESTING bfs");
-        bfs(openQueue, kb);
+        //bfs(openQueue, kb);
 
 
 
@@ -82,6 +82,50 @@ public class Main{
         //dfSearch(openStack, kb);
         usedList.clear(); // Make sure to clear the usedList after each example
     }
+
+    public void run_bfs(Clause goal, ArrayList<Clause> kb){
+        // Create Queue of Nodes
+        Queue<Node> nodeQueue = new LinkedList<Node>();
+        
+        // Uniquify both the goal clause and the whole knowledge base
+        uniquify(goal);
+        uniquifyKB(kb);
+
+        // Beautiful console output
+        System.out.println("\n***RUNNING BFS***\n");
+
+        // Add the goal to the openQueue
+
+        Node root = new Node(null, goal, new ArrayList<Binding>());
+
+        // Add the root to the queue
+        nodeQueue.add(root);
+
+        // Run while the queue is not empty
+        while(!nodeQueue.isEmpty()){
+            // Pop the head off the nodeQueue 
+            Node node = nodeQueue.poll();
+
+            // Generate children of Node
+            for(Clause kb_clause : kb){
+
+                // Generate a new child assuming solution isnt found
+                // Use new(ArrayList<...>) to create a copy of n.bindings, so its value doesnt change
+                ArrayList<ArrayList<Binding>> localBinds = unify(node.currClause.getFirstPred(), kb_clause.getFirstPred());
+
+                /**
+                 * UPDATE unify to take an ArrayList<Binding>..
+                 */
+                
+                System.out.println(localBinds);
+                System.exit(-1);
+            }
+        }
+
+        // Make sure nothing escapes :)
+        System.exit(-1);
+    }
+
 
 
     public ArrayList<Clause> uniquifyKB(ArrayList<Clause> kb){
@@ -94,52 +138,6 @@ public class Main{
 
         return kb; 
     }
-
-    /*public void dfs(Stack<Clause> openStack, ArrayList<Clause> kb){
-        ArrayList<ArrayList<Binding>> empty = new ArrayList<ArrayList<Binding>>();
-        empty.add(null);
-        ArrayList<Binding> bindingList = new ArrayList<Binding>();
-
-        System.out.println();
-
-        while(!openStack.isEmpty()){
-            Clause clause = openStack.pop();
-            for(Clause c : kb){
-                Clause newClause = new Clause();
-                ArrayList<ArrayList<Binding>> bindings = new ArrayList<ArrayList<Binding>>();
-                
-                System.out.println("\nAttempting to unify " + clause.getAsString() + " and " + c.getAsString());
-
-                bindings = unify(clause.predList.get(0).getAsStringList(), c.predList.get(0).getAsStringList());
-                System.out.println("bindings: " + bindings);
-                if(bindings != null && (bindings.equals(empty) || bindings.equals(new ArrayList<ArrayList<Binding>>()))){
-                    System.out.println("Unified and got empty clause");
-                    
-                    // Add whats left over to newClause
-                    newClause.predList.addAll(c.predList.subList(1, c.predList.size()));
-                    newClause.predList.addAll(clause.predList.subList(1, clause.predList.size()));
-
-                    // Add new clause to openList
-                    openStack.add(newClause);
-
-                    System.out.print("openStack after unification: ");
-                    for(Clause cl : openStack){
-                        System.out.print(cl.getAsString() + " ");
-                    }
-                    System.out.println();
-                }
-                else{
-                    //System.exit(-1);
-                    //bindingList.addAll(bindings.get(0));
-                }
-                //System.exit(-1);
-            }
-        }
-
-        System.exit(-1);
-    }*/
-
-    
 
     public String binding(ArrayList<Binding> bindingList, String binding){
         boolean done = false;
@@ -296,141 +294,6 @@ public class Main{
         System.out.println(answer);
     }
 
-    public void bfs(Queue<Clause> openQueue,ArrayList<Clause> kb ){
-        ArrayList<ArrayList<Binding>> bindingList = new ArrayList<ArrayList<Binding>>();
-        final int NUMSOLUTIONS = 2;
-        int index = 1;
-        int num_iters = 1;
-        boolean print = true;
-        int solutions = 0;
-        ArrayList<ArrayList<Binding>> uniqueSolutions = new ArrayList<ArrayList<Binding>>();
-        while(!openQueue.isEmpty()){
-            // Pop off the head of the openQueue
-            Clause queueClause = openQueue.poll();
-            
-            // Start by saving what the bindingList is right now
-            ArrayList<ArrayList<Binding>> currBindings = new ArrayList<ArrayList<Binding>>(bindingList); // Initiate it with bindingList
-
-
-            // Generate all successors
-            // Unify with all of the knowledge base
-            if(print)
-                System.out.println("\nITERATION " + index + "\n");
-            for(Clause kbClause : kb){
-                // Generate 'successors' for this clause
-                if(print)
-                    System.out.println("Unifying "+queueClause.predList.toString()+" and "+kbClause.predList.toString());
-                ArrayList<ArrayList<Binding>> bindings = unify(queueClause.predList.get(0).getAsStringList(), kbClause.predList.get(0).getAsStringList(), currBindings); // Add bindingList?
-                // If unification didnt fail
-                if(print)
-                    System.out.println("    BindingList: " + bindingList);
-                if(bindings != null){
-                    if(print)
-                        System.out.println("    Unification succeeded");
-    
-                    // Add rest of each clause to the openQueue
-                    Clause newClause = new Clause();
-                    ArrayList<Predicate> predList1 =  new ArrayList<Predicate>();
-                    ArrayList<Predicate> predList2 =  new ArrayList<Predicate>();
-                    predList2.addAll(queueClause.predList.subList(1, queueClause.predList.size()));
-                    predList1.addAll(kbClause.predList.subList(1, kbClause.predList.size()));
-                    if(print){
-                        System.out.println("    Predicate1: " + predList1.toString());
-                        System.out.println("    Predicate2: " + predList2.toString());
-                    }
-
-                    // If one of the predLists is didnt have anything dont add it
-                    if(!predList1.equals(new ArrayList<Predicate>()))
-                        newClause.predList.addAll(predList1);
-                    if(!predList2.equals(new ArrayList<Predicate>()))
-                        newClause.predList.addAll(predList2);
-                    
-                    // If no new predicates were added, dont add empty clause(a solution was found)
-                    if(newClause.predList.equals(new ArrayList<Predicate>())){
-                        // Chase all bindings
-                        // Hold all bindings in a simple arraylist of bindings
-                        solutions++;
-                        ArrayList<Binding> b_list = new ArrayList<Binding>(); 
-                        for(ArrayList<Binding> bin : bindings)
-                            b_list.add(bin.get(0));
-                        if(print)
-                            System.out.println("    b_list: "+b_list);
-                        // Make a list to hold all the answers, this will be added to uniqueSolutions list
-                        ArrayList<Binding> sol_bin_list = new ArrayList<Binding>();
-                        // For each binding in the 'bindings'
-                        int arglen = kbClause.predList.get(0).args.size();
-
-                        for(int i = arglen; i > 0; i--){
-                            Binding tmpBind = bindings.get(bindings.size()-i).get(0);
-                            //System.out.println(tmpBind);
-                            String chased = Helper.chaseBack(b_list, tmpBind.symb1);
-                            //System.out.println(chased);
-                            sol_bin_list.add(new Binding(chased, tmpBind.symb2));
-                        }
-                        if(addUniqueSolution(uniqueSolutions, sol_bin_list)){
-                            if(print)
-                                System.out.println("    Unique solution found!");
-                        }
-                        if(uniqueSolutions.size() == NUMSOLUTIONS){
-                            System.out.println("\n"+uniqueSolutions.size()+" unique solutions found\n");
-                            System.out.println(uniqueSolutions);
-                            System.exit(-1);
-                        }
-                        //EXIT
-                        /*
-                        for(String str : kbClause.predList.get(0).args){
-                            // Chase str back to its original binding
-                            String init = str; 
-                            str = Helper.chaseBack(b_list, init); // Could loop forever if circular...
-                            System.out.println("    "+init+" chased back to "+str);
-                            sol_bin_list.add(new Binding(str, init));
-                        }
-                        System.out.println("    "+sol_bin_list);
-                        //System.exit(-1);
-                        solutions++;
-                        if(addUniqueSolution(uniqueSolutions,sol_bin_list)){
-                            System.out.println("    Found a unique solution...");
-                            //System.out.println(bindings);
-                        }
-                        //if(solutions == 2)
-                        //    System.exit(-1);
-                        //bindingList.addAll(bindings);
-                        //solutions++;
-                        // Quits when 2 unique solutions are found
-                        */
-                    } 
-                    else{ // If you dont find a solution...
-                        openQueue.add(newClause);
-                    }
-                } 
-                else{
-                    // Unification failed
-                    if(print)
-                        System.out.println("    Unification failed(thats fine...)");
-                }
-                // At the end of each iteration of the kb for loop
-                if(print){
-                    System.out.print("    openQueue: ");
-                    for(Clause cl : openQueue)
-                        System.out.print(cl.getAsString() + " ");
-                    System.out.println();
-                }
-            }
-            if(index == num_iters){
-                System.out.println("Hit max num_iters");
-                break;
-            }
-            index++;
-            if(print)
-                System.out.println("    Start next pass through the kb(uniqueSolutions found: " + uniqueSolutions.size()+")");
-        }
-        System.out.println(uniqueSolutions.size() + " solution(s) found");
-        //System.out.println(uniqueSolutions);
-        for(ArrayList<Binding> b: uniqueSolutions)
-            System.out.println(b);
-        System.exit(-1);
-    }
-
     // Override parameter list to handle when the bindingList is omitted
     public ArrayList<ArrayList<Binding>> unify(ArrayList<String> x, ArrayList<String> y){
         ArrayList<ArrayList<Binding>> b = new ArrayList<ArrayList<Binding>>();
@@ -496,8 +359,8 @@ public class Main{
         Binding val2 = Helper.getBindingThatStartsWith(x.get(0), bindings);
 
         //System.out.println("bindings: "+bindings);
-        System.out.println("val1: "+val1);
-        System.out.println("val2: "+val2);
+        //System.out.println("val1: "+val1);
+        //System.out.println("val2: "+val2);
         //System.exit(-1);
 
         if(val1 != null){ // Check if var is already bound

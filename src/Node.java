@@ -6,10 +6,11 @@ public class Node{
     boolean root;
     Node parent;
     Clause currClause;
-    ArrayList<Bindings> bindings;
+    ArrayList<Binding> bindings;
+    ArrayList<Node> children;
 
     // Whats in the definition of a Node?
-    public Node(Node parent, Clause currClause, ArrayList<Bindings> bindings){
+    public Node(Node parent, Clause currClause, ArrayList<Binding> bindings){
         // Set passedin in parameters
         this.parent = parent;
         this.currClause = currClause;
@@ -22,4 +23,6 @@ public class Node{
         }
     }
 
+    // Method to add children will be needed
+    // (should it take in a node or maybe the node should be bult inside?) 
 }
