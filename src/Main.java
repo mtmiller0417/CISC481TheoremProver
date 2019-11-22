@@ -111,7 +111,7 @@ public class Main{
 
                 // Generate a new child assuming solution isnt found
                 // Use new(ArrayList<...>) to create a copy of n.bindings, so its value doesnt change
-                ArrayList<ArrayList<Binding>> localBinds = unify(node.currClause.getFirstPred(), kb_clause.getFirstPred());
+                ArrayList<Binding> localBinds = unify(node.currClause.getFirstPred(), kb_clause.getFirstPred());
 
                 /**
                  * UPDATE unify to take an ArrayList<Binding>..
@@ -289,19 +289,18 @@ public class Main{
     }
 
     public void testUnify(){
-        ArrayList<ArrayList<Binding>> bindResult = new ArrayList<ArrayList<Binding>>();
-        ArrayList<ArrayList<Binding>> answer = unify(new ArrayList<String>(Arrays.asList("parent","?x","?y")), new ArrayList<String>(Arrays.asList("parent","?x1","?y1")));
+        ArrayList<Binding> answer = unify(new ArrayList<String>(Arrays.asList("parent","?x","?y")), new ArrayList<String>(Arrays.asList("parent","?x1","?y1")));
         System.out.println(answer);
     }
 
     // Override parameter list to handle when the bindingList is omitted
-    public ArrayList<ArrayList<Binding>> unify(ArrayList<String> x, ArrayList<String> y){
-        ArrayList<ArrayList<Binding>> b = new ArrayList<ArrayList<Binding>>();
+    public ArrayList<Binding> unify(ArrayList<String> x, ArrayList<String> y){
+        //ArrayList<Binding> b = new ArrayList<Binding>();
         //b.add(null); // Dont think i want this
-        return unify(x,y,new ArrayList<ArrayList<Binding>>());
+        return unify(x,y,new ArrayList<Binding>());
     }
 
-    public ArrayList<ArrayList<Binding>> unify(ArrayList<String> x, ArrayList<String> y, ArrayList<ArrayList<Binding>> bindings){
+    public ArrayList<Binding> unify(ArrayList<String> x, ArrayList<String> y, ArrayList<Binding> bindings){
         
         if(bindings == null){ // Check for failure
             //System.out.println("\nfailure, return null");
@@ -352,7 +351,7 @@ public class Main{
         }
     }
 
-    public ArrayList<ArrayList<Binding>> unifyVar(String var, ArrayList<String> x, ArrayList<ArrayList<Binding>> bindings){
+    public ArrayList<Binding> unifyVar(String var, ArrayList<String> x, ArrayList<Binding> bindings){
         //System.out.println(bindings);
 
         Binding val1 = Helper.getBindingThatStartsWith(var, bindings);
@@ -376,9 +375,9 @@ public class Main{
         else{ // Add to bindings list
             //System.out.println("Add bindings");
             //System.out.println("binding before: " + bindings);
-            ArrayList<Binding> bin = new ArrayList<Binding>();
-            bin.add(new Binding(var, x.get(0)));
-            bindings.add(bin);
+
+            // Create new binding
+            bindings.add(new Binding(var, x.get(0)));
             return bindings;
         }
     }

@@ -50,17 +50,14 @@ public class Helper{
         }
     }
 
-    public static Binding getBindingThatStartsWith(String str, ArrayList<ArrayList<Binding>> bindings){
+    public static Binding getBindingThatStartsWith(String str, ArrayList<Binding> bindings){
         if(bindings == null)
             return null;
         if(bindings.isEmpty())
             return null;
-        if(bindings.get(0) == null){
-            return null;
-        }
 
         // Why is this like this....
-        for(Binding b : bindings.get(0))
+        for(Binding b : bindings)
             if(b.symb1.equals(str))
                 return b;
         return null;
@@ -205,14 +202,12 @@ public class Helper{
         System.out.println("\nTESTING unify()");
         Main m = new Main();
 
-        ArrayList<Binding> bindList = new ArrayList<Binding>();
-        bindList.add(new Binding("?x", "?w"));
-
-        ArrayList<ArrayList<Binding>> b = new ArrayList<ArrayList<Binding>>();
-        b.add(bindList);
+        ArrayList<Binding> b = new ArrayList<Binding>();
+        b.add(new Binding("?x", "?w"));
         
-        ArrayList<ArrayList<Binding>> answer = m.unify(new ArrayList<String>(Arrays.asList("p","?x","?y")), new ArrayList<String>(Arrays.asList("p","?z","?w")), b);
+        ArrayList<Binding> answer = m.unify(new ArrayList<String>(Arrays.asList("p","?x","?y")), new ArrayList<String>(Arrays.asList("p","?z","?w")), b);
         System.out.println(answer);
+        
         //System.exit(-1);
         //System.out.println(unify(new ArrayList<String>(Arrays.asList("p","?x")), new ArrayList<String>(Arrays.asList("p","?y"))));
         /*ArrayList<Binding> b_list = new ArrayList<Binding>();
