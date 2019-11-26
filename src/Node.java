@@ -7,22 +7,28 @@ public class Node{
     Node parent;
     Clause currClause;
     ArrayList<Binding> bindings;
-    ArrayList<Node> children;
+    int depth;
 
     // Whats in the definition of a Node?
-    public Node(Node parent, Clause currClause, ArrayList<Binding> bindings){
+    public Node(Node parent, Clause currClause, ArrayList<Binding> bindings, int depth){
         // Set passedin in parameters
         this.parent = parent;
         this.currClause = currClause;
         this.bindings = bindings;
+        this.depth = depth;
         // If the Node doesnt have a parent it is the root
         if(this.parent == null){
             this.root = true;
         } else {
             this.root = false;
         }
+
+        // Initiate children arraylist
+        //this.children = new ArrayList<Node>();
     }
 
-    // Method to add children will be needed
-    // (should it take in a node or maybe the node should be bult inside?) 
+    @Override
+    public String toString(){
+        return this.currClause.toString();
+    }
 }

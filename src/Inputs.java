@@ -82,10 +82,6 @@ public class Inputs{
         c.addPredicate(getPred(Arrays.asList("verb","bites")));
         clauseList.add(c);
 
-        /*for(Clause clause : clauseList){
-            System.out.println(clause.getAsString());
-        }*/
-
         return clauseList;
     }
 

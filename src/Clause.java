@@ -4,6 +4,11 @@ public class Clause {
 
     ArrayList<Predicate> predList;
 
+    // This essentially creats this clause as a copy of another clause
+    public Clause(Clause c){
+        this.predList = new ArrayList<Predicate>(c.predList);
+    }
+
     public Clause(){
         this.predList = new ArrayList<Predicate>();
     }
@@ -22,5 +27,10 @@ public class Clause {
 
     public ArrayList<String> getFirstPred(){
         return predList.get(0).getAsStringList();
+    }
+
+    @Override
+    public String toString(){
+        return this.predList.toString();
     }
 }
