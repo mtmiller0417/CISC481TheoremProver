@@ -55,7 +55,7 @@ public class Main{
         //testUnify();
         //run_bfs(g2, kb2);
 
-        run_dfs(g1, kb1);
+        run_dfs(g2, kb2);
     }
 
     public void run_bfs(Clause goal, ArrayList<Clause> kb){
@@ -80,7 +80,7 @@ public class Main{
 
         // Variables to be used
         final int MAX_ITERS = 300;
-        final int NUM_SOLS = 32;
+        final int NUM_SOLS = -1;
         boolean print = false;
         int iteration = 1;
 
@@ -197,8 +197,8 @@ public class Main{
         // Create Queue of Nodes
         Stack<Node> nodeStack = new Stack<Node>();
         // Uniquify both the goal clause and the whole knowledge base
-        uniquify(goal);
-        uniquifyKB(kb);
+        goal = uniquify2(new Clause(goal));
+        //uniquifyKB(kb);
 
         // Beautiful console output
         System.out.println("\n***RUNNING DFS***");
@@ -212,8 +212,8 @@ public class Main{
         // Variables to be used
         final int MAX_ITERS = 300; // 300
         final int NUM_SOLS = -1;
-        boolean print = true;
-        int iter = 1;
+        boolean print = false;
+        int iter = -1;
 
         // Run while the queue is not empty
         while(!nodeStack.isEmpty()){
@@ -226,20 +226,19 @@ public class Main{
 
             if(print)
                 System.out.println("\nITERATION " + iter + " nodeClause="+node.currClause);
-            //System.out.println()
 
             // Generate children of Node
             for(Clause kb_clause : kb){
 
-                //uniquify2(kb_clause);
-
+                Clause kb_clause_copy = uniquify2(new Clause(kb_clause));
+                
                 // Generate a new child assuming solution isnt found
                 if(print){
-                    System.out.println("\nAttempting to unify " + node.currClause + " + " + kb_clause);
+                    System.out.println("\nAttempting to unify " + node.currClause + " + " + kb_clause_copy);
                     System.out.println("    Bindings before: " + node.bindings);
                 }
                 // Use new(ArrayList<Binding>(...)) to create a copy of node.bindings, so its value doesnt change
-                ArrayList<Binding> localBinds = unify(node.currClause.getFirstPred(), kb_clause.getFirstPred(), new ArrayList<Binding>(node.bindings));
+                ArrayList<Binding> localBinds = unify(node.currClause.getFirstPred(), kb_clause_copy.getFirstPred(), new ArrayList<Binding>(node.bindings));
 
                 if(print)
                     System.out.println("    Bindings: "+localBinds);
@@ -254,7 +253,7 @@ public class Main{
 
                     // Fill clause with left over predicate
                     ArrayList<Predicate> p1 = new ArrayList<Predicate>(node.currClause.predList.subList(1, node.currClause.predList.size()));
-                    ArrayList<Predicate> p2 = new ArrayList<Predicate>(kb_clause.predList.subList(1, kb_clause.predList.size()));
+                    ArrayList<Predicate> p2 = new ArrayList<Predicate>(kb_clause_copy.predList.subList(1, kb_clause_copy.predList.size()));
 
                     // Order of these two 'ifs' matters, which goes first? the kb_clause? I think this is right
                     if(!p2.isEmpty())
@@ -279,15 +278,17 @@ public class Main{
 
                         // If this is a unique solution, it adds it to 'uniqueSolutions' and returns true
                         if(addUniqueSolution(uniqueSolutions, sol)){
-                            System.out.println("Unique solution added: " + sol);
+                            
+                            /*System.out.println("Unique solution added: " + sol);
                             System.out.println("Bindings: " + localBinds);
                             System.out.println("Goal Clause: " + goalClause);
-                            System.out.println("Unique Solutions:");
+                            System.out.println("Unique Solutions:");*/
+                            
                             if(print){
                                 for(ArrayList<Binding> b : uniqueSolutions)
                                     System.out.println("    "+b);
                             }
-                            System.exit(-1);
+                            //System.exit(-1);
                         }
 
                         if(uniqueSolutions.size() == NUM_SOLS){
@@ -312,18 +313,17 @@ public class Main{
                     System.out.println("    nodeStack: " + nodeStack);
             } // End of for loop through KB
 
-            if(iter == MAX_ITERS)   
+            /*if(iter == MAX_ITERS){
+                System.out.println("MAX_ITERS reached...");
                 System.exit(-1);
-            iter++;
+            }
+            iter++;*/
         }
-        if(nodeStack.isEmpty()){
-            System.out.println("nodeStack is empty");
-        }
-        System.out.println("Solutions");
+
+        System.out.println("Solutions ("+ uniqueSolutions.size() +")");
         for(ArrayList<Binding> b : uniqueSolutions)
             System.out.println(b);
-        // Make sure nothing escapes :)
-        System.exit(-1);
+            
         // Make sure to clear the usedList after each example
         usedList.clear(); 
     }
@@ -362,10 +362,13 @@ public class Main{
 
     // Make sure this uniquify works right  
     public Clause uniquify2(Clause clause){
+
+        //System.out.println("uniquify2 called on " + clause);
+
         // Initiate both arraylists needed for this 
         ArrayList<String> used_vars = new ArrayList<String>();
         ArrayList<String> new_vars = new ArrayList<String>();
-
+        
         boolean print = false;
 
         if(print){
@@ -373,9 +376,8 @@ public class Main{
             System.out.println("Clause: " + clause);
         }
 
+        // Sort variables into either used_vars or new_vars
         for(Predicate p : clause.predList){
-            // TO-DO
-            // PARSE NUMBERS FROM VARIABLES???
             for(String var : p.args){
                 // If the var is a constant and not a var, dont do anything and skip to next
                 if(var.charAt(0) != '?')
@@ -408,6 +410,7 @@ public class Main{
         if(print)
             System.out.println("usedMap: " + usedMap);
 
+        // Update the value of each key in the used_vars list
         for(String var : used_vars){
             // Update the map for each of these as well as update them in the clause to be returned
             usedMap.put(var, usedMap.get(var)+1);
@@ -419,8 +422,9 @@ public class Main{
                 String var = this.getVar(p.args.get(i));
                 if(used_vars.contains(var)){
                     // Create new variable with correct number
-                    String replaced = this.replaceNum(var, usedMap.get(var));
-                    p.args.set(i, replaced);
+                    int num = usedMap.get(var);
+                    String v = p.args.get(i);
+                    p.args.set(i, replaceNum(v, num));
                 }
             }
         }
@@ -430,11 +434,16 @@ public class Main{
             System.out.println("clause: " + clause);
         }
 
-        return clause;
+        Clause c = new Clause();
+        for(Predicate p : clause.predList)
+            c.addPredicate(p);
+
+        return c;
     }
 
     public Clause uniquify(Clause clause){
         ArrayList<Predicate> predList = clause.predList;
+        // 
         ArrayList<String> localList = new ArrayList<String>();
         ArrayList<Predicate> updatePredList = new ArrayList<Predicate>();
         ArrayList<String> firstList = new ArrayList<String>();
@@ -475,8 +484,9 @@ public class Main{
         }
         for(Predicate p : predList){
             for(int i = 0; i < p.args.size(); i++){
+            
                 if(localList.contains(p.args.get(i))){
-                    //System.out.println("Replace " + p.args.get(i) + " with " + replaceNum(p.args.get(i), usedMap.get(p.args.get(i))));
+                    System.out.println("Replace " + p.args.get(i) + " with " + replaceNum(p.args.get(i), usedMap.get(p.args.get(i))));
                     p.args.set(i, replaceNum(p.args.get(i), usedMap.get(p.args.get(i))));
                 }
             }

@@ -9,12 +9,13 @@ public class Clause {
         this.predList = new ArrayList<Predicate>(c.predList);
     }
 
+    // If nothing passed in, just instantiate predList
     public Clause(){
         this.predList = new ArrayList<Predicate>();
     }
 
     public void addPredicate(Predicate p){
-        predList.add(p);
+        predList.add(new Predicate(p));
     }
 
     public ArrayList<ArrayList<String>> getAsString(){

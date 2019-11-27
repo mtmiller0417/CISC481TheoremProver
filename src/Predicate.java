@@ -17,6 +17,12 @@ public class Predicate {
         //System.out.println(this.args);
     }
 
+    // This is how you make a copy
+    public Predicate(Predicate p){
+        this.predicate = new String(p.predicate);
+        this.args = new ArrayList<String>(p.args);
+    }
+
     public ArrayList<String> getAsStringList(){
         ArrayList<String> a = new ArrayList<String>(this.args);
         a.add(0, this.predicate);

@@ -9,6 +9,14 @@ public class Node{
     ArrayList<Binding> bindings;
     int depth;
 
+    public Node(Node copy){
+        this.root = copy.root;
+        this.parent = copy.parent;
+        this.currClause = new Clause(copy.currClause);
+        this.bindings = new ArrayList<Binding>(copy.bindings);
+        this.depth = copy.depth;
+    }
+
     // Whats in the definition of a Node?
     public Node(Node parent, Clause currClause, ArrayList<Binding> bindings, int depth){
         // Set passedin in parameters
