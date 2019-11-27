@@ -164,38 +164,27 @@ public class Helper{
             System.out.println("ERROR: test failed");
             System.exit(-1);
         }
-        /*str = incrementSymbol("m");
-        System.out.println(str);
-        if(!str.equals("m1")){
-            System.out.println("ERROR: test failed");
-            System.exit(-1);
-        }
-        str = incrementSymbol("matt2");
-        System.out.println(str);
-        if(!str.equals("matt3")){
-            System.out.println("ERROR: test failed");
-            System.exit(-1);
-        }*/
     }
 
     public static void testUniquify(){
         Main m = new Main();
         System.out.println("\nTESTING uniquify()");
 
-        /*ArrayList<String[]> clause = new ArrayList<String[]>();  
-        clause.add(new String[]{"p", "?x", "?y"});
-        clause.add(new String[]{"a", "?x", "?z"});
-        clause.add(new String[]{"a", "?z", "?y"});
-
-        m.uniquify(clause);*/
-
+        ArrayList<Clause> clauseList = new ArrayList<Clause>();
         Clause c = new Clause();
         c.addPredicate(new Predicate(new ArrayList<String>(Arrays.asList("aunt","?x","?y"))));
-        c.addPredicate(new Predicate(new ArrayList<String>(Arrays.asList("sister","?x","?z"))));
-        c.addPredicate(new Predicate(new ArrayList<String>(Arrays.asList("mother","?y","?z"))));
 
-        System.out.println(m.uniquify(c).getAsString());
-        m.usedList.clear();
+        Clause c2 = new Clause();
+        c2.addPredicate(new Predicate(new ArrayList<String>(Arrays.asList("aunt","?x","?y"))));
+
+        Clause result = m.uniquify(c);
+        
+        if(!result.predList.equals(c2.predList))
+            System.exit(-1);
+        
+        Clause answer = new Clause();
+        answer.addPredicate(new Predicate(new ArrayList<String>(Arrays.asList("aunt","?x","?y"))));
+        m.usedMap.clear();
     }
 
     public static void testUnify(){
@@ -208,9 +197,8 @@ public class Helper{
         ArrayList<Binding> answer = m.unify(new ArrayList<String>(Arrays.asList("p","?x","?y")), new ArrayList<String>(Arrays.asList("p","?z","?w")), b);
         System.out.println(answer);
         
-        //System.exit(-1);
-        //System.out.println(unify(new ArrayList<String>(Arrays.asList("p","?x")), new ArrayList<String>(Arrays.asList("p","?y"))));
-        /*ArrayList<Binding> b_list = new ArrayList<Binding>();
+        System.out.println(m.unify(new ArrayList<String>(Arrays.asList("p","?x")), new ArrayList<String>(Arrays.asList("p","?y"))));
+        ArrayList<Binding> b_list = new ArrayList<Binding>();
         b_list.add(new Binding("?x","?w"));
         b_list.add(new Binding("?w","?z"));
         b_list.add(new Binding("?y","?z"));
@@ -218,7 +206,6 @@ public class Helper{
         if(!answer.equals(b_list)){
             System.out.println("ERROR: test failed");
             System.exit(-1);
-        }*/
-
+        }
     }
 }

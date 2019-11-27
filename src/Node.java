@@ -30,9 +30,6 @@ public class Node{
         } else {
             this.root = false;
         }
-
-        // Initiate children arraylist
-        //this.children = new ArrayList<Node>();
     }
 
     @Override

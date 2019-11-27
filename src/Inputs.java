@@ -33,16 +33,13 @@ public class Inputs{
         c.addPredicate(getPred(Arrays.asList("mother","Sue","Paul")));
         clauseList.add(c);
 
-        /*for(Clause clause : clauseList){
-            System.out.println(clause.getAsString());
-        }*/
-
         return clauseList;
     }
 
     public static Clause getGoals1(){
         Clause c = new Clause();
         c.addPredicate(getPred(Arrays.asList("aunt","?x","?y")));
+
         return c;
     }
 
@@ -88,6 +85,7 @@ public class Inputs{
     public static Clause getGoals2(){
         Clause c = new Clause();
         c.addPredicate(getPred(Arrays.asList("simple_sentence","?x","?y","?z","?u","?v")));
+
         return c;
     }
 
@@ -108,11 +106,6 @@ public class Inputs{
         c = new Clause();
         c.addPredicate(getPred(Arrays.asList("parent","Sue","Mary")));
         clauseList.add(c);
-
-
-        /*for(Clause clause : clauseList){
-            System.out.println(clause.getAsString());
-        }*/
 
         return clauseList;
     }
@@ -140,10 +133,6 @@ public class Inputs{
         c = new Clause();
         c.addPredicate(getPred(Arrays.asList("parent","Sue","Mary")));
         clauseList.add(c);
-
-        /*for(Clause clause : clauseList){
-            System.out.println(clause.getAsString());
-        }*/
 
         return clauseList;
     }

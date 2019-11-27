@@ -14,7 +14,6 @@ public class Predicate {
 
         this.predicate = stringList.get(0);
         this.args = new ArrayList<String>(stringList.subList(1, stringList.size()));
-        //System.out.println(this.args);
     }
 
     // This is how you make a copy
@@ -29,11 +28,21 @@ public class Predicate {
         return a;
     }
 
+    // Controls how Predicate objects print
     @Override
     public String toString(){
         String s = predicate;
         for(String sym : args)
             s+= " " + sym;
         return s;
+    }
+
+    // Overrides the equals method
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Predicate){
+            return this.predicate.equals(((Predicate)obj).predicate) && this.args.equals(((Predicate)obj).args);
+        }
+        return false;
     }
 }

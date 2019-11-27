@@ -17,7 +17,7 @@ public class Main{
     Clause g3 = Inputs.getGoals3();
     Clause g4 = Inputs.getGoals4();
 
-    ArrayList<String> usedList = new ArrayList<String>();
+    //ArrayList<String> usedList = new ArrayList<String>();
     Map<String,Integer> usedMap = new HashMap<String,Integer>();
 
     final int MAX_DEPTH = 300;
@@ -41,8 +41,6 @@ public class Main{
         // Test the binding function
         Helper.testBinding();
 
-        //System.exit(-1);
-
         // Test the incrementSymbol function
         Helper.testIncrementSymbol();
 
@@ -52,10 +50,27 @@ public class Main{
         // Test the unify function
         Helper.testUnify();
 
-        //testUnify();
-        //run_bfs(g2, kb2);
+        testUnify();
 
+        // Run all bfs
+        System.out.println("\n***RUNNING BFS TEST 1***\n");
+        run_bfs(g1, kb1);
+        System.out.println("\n***RUNNING BFS TEST 2***\n");
+        run_bfs(g2, kb2);
+        System.out.println("\n***RUNNING BFS TEST 3***\n");
+        run_bfs(g3, kb3);
+        System.out.println("\n***RUNNING BFS TEST 4***\n");
+        run_bfs(g4, kb4);
+        
+        // Run all dfs
+        System.out.println("\n***RUNNING DFS TEST 1***\n");
+        run_dfs(g1, kb1);
+        System.out.println("\n***RUNNING DFS TEST 2***\n");
         run_dfs(g2, kb2);
+        System.out.println("\n***RUNNING DFS TEST 3***\n");
+        run_dfs(g3, kb3);
+        System.out.println("\n***RUNNING DFS TEST 4***\n");
+        run_bfs(g4, kb4);
     }
 
     public void run_bfs(Clause goal, ArrayList<Clause> kb){
@@ -64,161 +79,23 @@ public class Main{
 
         // Create Queue of Nodes
         Queue<Node> nodeQueue = new LinkedList<Node>();
-
         // Uniquify both the goal clause and the whole knowledge base
-        //uniquify(goal);
-        //uniquifyKB(kb);
-
-        // Beautiful console output
-        System.out.println("\n***RUNNING BFS***");
+        goal = uniquify(new Clause(goal));
 
         // Create root node and add it to the queue to get it started
-        Node root = new Node(null, goal, new ArrayList<Binding>(), 1);
+        Node root = new Node(null, goal, new ArrayList<Binding>(),1);
         nodeQueue.add(root);
 
         ArrayList<ArrayList<Binding>> uniqueSolutions = new ArrayList<ArrayList<Binding>>();
 
-        // Variables to be used
-        final int MAX_ITERS = 300;
-        final int NUM_SOLS = -1;
+        // Boolean printing variable to debug
         boolean print = false;
-        int iteration = 1;
-
+        int iter = 1;
 
         // Run while the queue is not empty
         while(!nodeQueue.isEmpty()){
             // Pop the head off the nodeQueue 
             Node node = nodeQueue.poll();
-            
-            if(node.depth > MAX_DEPTH)
-                continue;
-
-            if(print)
-                System.out.println("\nITERATION " + iteration + " nodeClause="+node.currClause);
-            //System.out.println()
-
-            // Generate children of Node
-            for(Clause kb_clause : kb){
-
-                // Generate a new child assuming solution isnt found
-                if(print){
-                    System.out.println("\nAttempting to unify " + node.currClause + " + " + kb_clause);
-                }
-                // Use new(ArrayList<Binding>(...)) to create a copy of node.bindings, so its value doesnt change
-                uniquify(kb_clause);
-                System.out.println("    KB:"+kb);
-                ArrayList<Binding> localBinds = unify(node.currClause.getFirstPred(), kb_clause.getFirstPred(), new ArrayList<Binding>(node.bindings));
-
-                if(print)
-                    System.out.println("    Bindings: "+localBinds);
-
-                if(localBinds != null){
-                    // Unify was successfull
-                    if(print)
-                        System.out.println("    Unification was SUCCESSFUL");
-
-                    // Create new clause with predicates left over from both clauses from unify
-                    Clause tmpClause = new Clause();
-
-                    // Fill clause with left over predicate
-                    ArrayList<Predicate> p1 = new ArrayList<Predicate>(node.currClause.predList.subList(1, node.currClause.predList.size()));
-                    ArrayList<Predicate> p2 = new ArrayList<Predicate>(kb_clause.predList.subList(1, kb_clause.predList.size()));
-
-                    // Order of these two 'ifs' matters, which goes first? the kb_clause? I think this is right
-                    if(!p2.isEmpty())
-                        tmpClause.predList.addAll(p2);
-                    if(!p1.isEmpty())
-                        tmpClause.predList.addAll(p1);
-
-                    // Create a list of bindings(there are a possibly unique solution)
-                    ArrayList<Binding> sol = new ArrayList<>();
-
-                    // If both are empty, then the empty clause is created
-                    if(p1.isEmpty() && p2.isEmpty()){
-                        // A solution is found
-                        if(print)
-                            System.out.println("    We found a solution");
-                        //System.out.println("    currClause: " + node.currClause.getFirstPred());
-                        for(Predicate p : goalClause.predList){
-                            //System.out.println(p.args);
-                            for(String arg : p.args){
-                                String output = binding(localBinds, arg);
-                                //System.out.println(arg+"/"+output);
-                                sol.add(new Binding(arg, output));
-                            }
-                        }
-
-                        // If this is a unique solution, it adds it to 'uniqueSolutions' and returns true
-                        if(addUniqueSolution(uniqueSolutions, sol)){
-                            System.out.println("    Unique solution added");
-                            for(ArrayList<Binding> b : uniqueSolutions)
-                                System.out.println("    " + b);
-                        }
-
-                        if(uniqueSolutions.size() == NUM_SOLS){
-                            System.out.println(NUM_SOLS+" found, exiting");
-                            System.exit(-1);
-                        }
-                    }
-                    else{
-                        // Only add the node if it is not a terminal state(ie a solution)
-                        if(print)
-                            System.out.println("    add node to nodeQueue...");
-                        nodeQueue.add(new Node(node, tmpClause, localBinds, node.depth+1));
-                    }
-                } 
-                else {
-                    if(print)
-                        System.out.println("    Unify was not successful, not necessarily a problem");
-                }
-                if(print)
-                    System.out.println("    nodeQueue: " + nodeQueue);
-            } // End of for loop through KB
-
-            if(iteration == MAX_ITERS){
-                System.out.println("Terminating after " + MAX_ITERS + " iterations");
-                System.exit(-1);
-            }
-            iteration++;
-        }
-        if(nodeQueue.isEmpty()){
-            System.out.println("nodeQueue is empty");
-        }
-        // Make sure nothing escapes :)
-        System.exit(-1);
-        // Make sure to clear the usedList after each example
-        usedList.clear(); 
-    }
-
-    public void run_dfs(Clause goal, ArrayList<Clause> kb){
-        // Save the goalClause in a variable to be used later
-        Clause goalClause = new Clause(goal);
-
-        // Create Queue of Nodes
-        Stack<Node> nodeStack = new Stack<Node>();
-        // Uniquify both the goal clause and the whole knowledge base
-        goal = uniquify2(new Clause(goal));
-        //uniquifyKB(kb);
-
-        // Beautiful console output
-        System.out.println("\n***RUNNING DFS***");
-
-        // Create root node and add it to the queue to get it started
-        Node root = new Node(null, goal, new ArrayList<Binding>(),1);
-        nodeStack.push(root);
-
-        ArrayList<ArrayList<Binding>> uniqueSolutions = new ArrayList<ArrayList<Binding>>();
-
-        // Variables to be used
-        final int MAX_ITERS = 300; // 300
-        final int NUM_SOLS = -1;
-        boolean print = false;
-        int iter = -1;
-
-        // Run while the queue is not empty
-        while(!nodeStack.isEmpty()){
-            // Pop the head off the nodeStack 
-            Node node = nodeStack.pop();
             
             // If this node is past the max depth continue to the next node
             if(node.depth > MAX_DEPTH)
@@ -230,14 +107,14 @@ public class Main{
             // Generate children of Node
             for(Clause kb_clause : kb){
 
-                Clause kb_clause_copy = uniquify2(new Clause(kb_clause));
+                Clause kb_clause_copy = uniquify(new Clause(kb_clause));
                 
                 // Generate a new child assuming solution isnt found
                 if(print){
                     System.out.println("\nAttempting to unify " + node.currClause + " + " + kb_clause_copy);
                     System.out.println("    Bindings before: " + node.bindings);
                 }
-                // Use new(ArrayList<Binding>(...)) to create a copy of node.bindings, so its value doesnt change
+
                 ArrayList<Binding> localBinds = unify(node.currClause.getFirstPred(), kb_clause_copy.getFirstPred(), new ArrayList<Binding>(node.bindings));
 
                 if(print)
@@ -278,24 +155,137 @@ public class Main{
 
                         // If this is a unique solution, it adds it to 'uniqueSolutions' and returns true
                         if(addUniqueSolution(uniqueSolutions, sol)){
-                            
-                            /*System.out.println("Unique solution added: " + sol);
-                            System.out.println("Bindings: " + localBinds);
-                            System.out.println("Goal Clause: " + goalClause);
-                            System.out.println("Unique Solutions:");*/
+                            if(print){
+                                System.out.println("Unique solution added: " + sol);
+                                System.out.println("Bindings: " + localBinds);
+                                System.out.println("Goal Clause: " + goalClause);
+                                System.out.println("Unique Solutions:");
+                            }
                             
                             if(print){
                                 for(ArrayList<Binding> b : uniqueSolutions)
                                     System.out.println("    "+b);
                             }
-                            //System.exit(-1);
+                        }
+                    }
+                    else{
+                        // Only add the node if it is not a terminal state(ie a solution)
+                        if(print)
+                            System.out.println("    add node to nodeQueue...");
+                            nodeQueue.add(new Node(node, tmpClause, localBinds, node.depth+1));
+                    }
+                } 
+                else {
+                    if(print)
+                        System.out.println("    Unify was not successful, not necessarily a problem");
+                }
+                if(print)
+                    System.out.println("    nodeQueue: " + nodeQueue);
+            } // End of for loop through KB
+            iter++;
+        }
+
+        System.out.println("Solutions ("+ uniqueSolutions.size() +")");
+        for(ArrayList<Binding> b : uniqueSolutions)
+            System.out.println(b);
+            
+        // Make sure to clear the usedList after each example
+        usedMap.clear();
+    }
+
+    public void run_dfs(Clause goal, ArrayList<Clause> kb){
+        // Save the goalClause in a variable to be used later
+        Clause goalClause = new Clause(goal);
+
+        // Create Queue of Nodes
+        Stack<Node> nodeStack = new Stack<Node>();
+        // Uniquify both the goal clause and the whole knowledge base
+        goal = uniquify(new Clause(goal));
+
+        // Create root node and add it to the queue to get it started
+        Node root = new Node(null, goal, new ArrayList<Binding>(),1);
+        nodeStack.push(root);
+
+        ArrayList<ArrayList<Binding>> uniqueSolutions = new ArrayList<ArrayList<Binding>>();
+
+        // Variables to be used
+        boolean print = false;
+        int iter = 1;
+
+        // Run while the queue is not empty
+        while(!nodeStack.isEmpty()){
+            // Pop the head off the nodeStack 
+            Node node = nodeStack.pop();
+            
+            // If this node is past the max depth continue to the next node
+            if(node.depth > MAX_DEPTH)
+                continue;
+
+            if(print)
+                System.out.println("\nITERATION " + iter + " nodeClause="+node.currClause);
+
+            // Generate children of Node
+            for(Clause kb_clause : kb){
+
+                Clause kb_clause_copy = uniquify(new Clause(kb_clause));
+                
+                // Generate a new child assuming solution isnt found
+                if(print){
+                    System.out.println("\nAttempting to unify " + node.currClause + " + " + kb_clause_copy);
+                    System.out.println("    Bindings before: " + node.bindings);
+                }
+
+                ArrayList<Binding> localBinds = unify(node.currClause.getFirstPred(), kb_clause_copy.getFirstPred(), new ArrayList<Binding>(node.bindings));
+
+                if(print)
+                    System.out.println("    Bindings: "+localBinds);
+
+                if(localBinds != null){
+                    // Unify was successfull
+                    if(print)
+                        System.out.println("    Unification was SUCCESSFUL");
+
+                    // Create new clause with predicates left over from both clauses from unify
+                    Clause tmpClause = new Clause();
+
+                    // Fill clause with left over predicate
+                    ArrayList<Predicate> p1 = new ArrayList<Predicate>(node.currClause.predList.subList(1, node.currClause.predList.size()));
+                    ArrayList<Predicate> p2 = new ArrayList<Predicate>(kb_clause_copy.predList.subList(1, kb_clause_copy.predList.size()));
+
+                    // Order of these two 'ifs' matters, which goes first? the kb_clause? I think this is right
+                    if(!p2.isEmpty())
+                        tmpClause.predList.addAll(p2);
+                    if(!p1.isEmpty())
+                        tmpClause.predList.addAll(p1);
+
+                    // Create a list of bindings(there are a possibly unique solution)
+                    ArrayList<Binding> sol = new ArrayList<>();
+
+                    // If both are empty, then the empty clause is created
+                    if(p1.isEmpty() && p2.isEmpty()){
+                        // A solution is found
+                        if(print)
+                            System.out.println("    We found a solution");
+                        for(Predicate p : goalClause.predList){
+                            for(String arg : p.args){
+                                String output = binding(localBinds, arg);
+                                sol.add(new Binding(arg, output));
+                            }
                         }
 
-                        if(uniqueSolutions.size() == NUM_SOLS){
-                            System.out.println(NUM_SOLS+" found, exiting");
-                            for(ArrayList<Binding> b : uniqueSolutions)
-                                    System.out.println("    " + b);
-                            System.exit(-1);
+                        // If this is a unique solution, it adds it to 'uniqueSolutions' and returns true
+                        if(addUniqueSolution(uniqueSolutions, sol)){
+                            if(print){
+                                System.out.println("Unique solution added: " + sol);
+                                System.out.println("Bindings: " + localBinds);
+                                System.out.println("Goal Clause: " + goalClause);
+                                System.out.println("Unique Solutions:");
+                            }
+                            
+                            if(print){
+                                for(ArrayList<Binding> b : uniqueSolutions)
+                                    System.out.println("    "+b);
+                            }
                         }
                     }
                     else{
@@ -312,12 +302,7 @@ public class Main{
                 if(print)
                     System.out.println("    nodeStack: " + nodeStack);
             } // End of for loop through KB
-
-            /*if(iter == MAX_ITERS){
-                System.out.println("MAX_ITERS reached...");
-                System.exit(-1);
-            }
-            iter++;*/
+            iter++;
         }
 
         System.out.println("Solutions ("+ uniqueSolutions.size() +")");
@@ -325,18 +310,7 @@ public class Main{
             System.out.println(b);
             
         // Make sure to clear the usedList after each example
-        usedList.clear(); 
-    }
-
-    public ArrayList<Clause> uniquifyKB(ArrayList<Clause> kb){
-        System.out.println("\n");
-        for(Clause clause : kb)
-            clause = uniquify(clause);
-        
-        for(Clause clause : kb)
-            System.out.println(clause.getAsString());
-
-        return kb; 
+        usedMap.clear();
     }
 
     public String binding(ArrayList<Binding> bindingList, String binding){
@@ -361,9 +335,7 @@ public class Main{
     }
 
     // Make sure this uniquify works right  
-    public Clause uniquify2(Clause clause){
-
-        //System.out.println("uniquify2 called on " + clause);
+    public Clause uniquify(Clause clause){
 
         // Initiate both arraylists needed for this 
         ArrayList<String> used_vars = new ArrayList<String>();
@@ -441,63 +413,6 @@ public class Main{
         return c;
     }
 
-    public Clause uniquify(Clause clause){
-        ArrayList<Predicate> predList = clause.predList;
-        // 
-        ArrayList<String> localList = new ArrayList<String>();
-        ArrayList<Predicate> updatePredList = new ArrayList<Predicate>();
-        ArrayList<String> firstList = new ArrayList<String>();
-        ///System.out.println("\n New Clause");
-        for(Predicate p : predList){
-            //System.out.println("\n Predicate: " + p.getAsStringList());
-            for(int i = 0; i < p.args.size(); i++){
-                if(p.args.get(i).charAt(0) != '?'){
-                    // Not a variable, dont do anything
-                    //System.out.println(p.args.get(i) + " is not a variable");
-                }
-                else if(localList.contains(p.args.get(i))){ 
-                    // We've already accounted for this local symbol
-                    //System.out.println(p.args.get(i) + " has already been accounted for in this clause");
-                }
-                else if(usedMap.containsKey(p.args.get(i)) && !firstList.contains(p.args.get(i))){
-                    // If the symbol is in the map but not yet in this clause
-                    //System.out.println(p.args.get(i) + " first time seen in this clause, already in map");
-                    localList.add(p.args.get(i));
-                    updatePredList.add(p);
-                }
-                else{
-                    // This is the first time the symbol has been seen in the clause or usedMap
-                    //System.out.println(p.args.get(i) + " not seeen in map or clause yet");
-                    firstList.add(p.args.get(i));
-                    usedMap.put(p.args.get(i), getNumFromVar(p.args.get(i)));
-                }
-            }
-        }
-
-        //System.out.println("Symbols to be updated this clause: " + localList);
-        // Update map
-        for(String var : localList){
-            if(usedMap.containsKey(var)){
-                int newVal = usedMap.get(var)+1;
-                usedMap.put(var, newVal);
-            }
-        }
-        for(Predicate p : predList){
-            for(int i = 0; i < p.args.size(); i++){
-            
-                if(localList.contains(p.args.get(i))){
-                    System.out.println("Replace " + p.args.get(i) + " with " + replaceNum(p.args.get(i), usedMap.get(p.args.get(i))));
-                    p.args.set(i, replaceNum(p.args.get(i), usedMap.get(p.args.get(i))));
-                }
-            }
-        }
-
-        Clause c = new Clause();
-        for(Predicate p : predList)
-            c.addPredicate(p);
-        return c;
-    }
-
     public String getVar(String var){
         if(var.charAt(0) != '?')
             return null;
@@ -558,11 +473,7 @@ public class Main{
         else
             return Integer.parseInt(var.substring(index, var.length()));
     }
-
-    /*#################################################################################################################################################################################*/
-    /*#################################################################################################################################################################################*/
-    /*#################################################################################################################################################################################*/
-    
+   
     public boolean addUniqueSolution(ArrayList<ArrayList<Binding>> uniqueSolutions, ArrayList<Binding> solution){
         // Add the solution if it isnt already in the list
         if(!uniqueSolutions.contains(solution)){
@@ -579,37 +490,26 @@ public class Main{
 
     // Override parameter list to handle when the bindingList is omitted
     public ArrayList<Binding> unify(ArrayList<String> x, ArrayList<String> y){
-        //ArrayList<Binding> b = new ArrayList<Binding>();
-        //b.add(null); // Dont think i want this
         return unify(x,y,new ArrayList<Binding>());
     }
 
     public ArrayList<Binding> unify(ArrayList<String> x, ArrayList<String> y, ArrayList<Binding> bindings){
         
         if(bindings == null){ // Check for failure
-            //System.out.println("failure, return null | x: "+x+", y:"+y);
             return null;
         }
         else if(x.equals(y)){
-            //System.out.println("\nx equals y");
-            //System.out.println(x + " == " + y);
             return bindings;
         }
         else if(x.size() == 1 && x.get(0).charAt(0) == '?'){ // Check if x is a variable
             // x is a variable
-            //System.out.println("\nx is a variable");
-            //System.out.println("unifyVar("+x.get(0)+", "+y+", "+bindings);
             return unifyVar(x.get(0),y,bindings);
         }
         else if(y.size() == 1 && y.get(0).charAt(0) == '?'){ // Check if y is a variable
             // y is a variable
-            //System.out.println("\ny is a variable");
-            //System.out.println("unifyVar("+y.get(0)+", "+x+", "+bindings);
             return unifyVar(y.get(0),x,bindings);
         }
         else if(x.size() > 1 && y.size() > 1){ // Check if they are both lists
-            // Get the first element of each of x and y
-            //System.out.println("\nx and y are both lists");
             ArrayList<String> x_first =  new ArrayList<String>(Arrays.asList(x.get(0)));
             ArrayList<String> y_first =  new ArrayList<String>(Arrays.asList(y.get(0)));
 
@@ -625,36 +525,25 @@ public class Main{
                 y_rest.add(str);
             y_rest.remove(0);
 
-            //System.out.println("x_first: " + x_first);
-            //System.out.println("y_first: " + y_first);
-            //System.out.println("unify("+x_rest+", "+y_rest+", unify("+x_first+", "+y_first+", "+bindings+"))");
             return unify(x_rest, y_rest, unify(x_first, y_first, bindings));
         }
         else{
-            //System.out.println("NULL x: "+x+", y:"+y);
             return null;
         }
     }
 
     public ArrayList<Binding> unifyVar(String var, ArrayList<String> x, ArrayList<Binding> bindings){
-        //System.out.println(bindings);
 
         Binding val1 = Helper.getBindingThatStartsWith(var, bindings);
         Binding val2 = Helper.getBindingThatStartsWith(x.get(0), bindings);
 
         if(val1 != null){ // Check if var is already bound
-            //System.out.println("\nval1 isnt null");
-            //System.out.println("unify("+new ArrayList<String>(Arrays.asList(val1.symb2))+", "+x+", "+bindings);
             return unify(new ArrayList<String>(Arrays.asList(val1.symb2)), x, bindings);
         }
         else if(val2 != null){ // Check if x is bound variable
-            //System.out.println("\nval2 isnt null");
-            //System.out.println("unify("+new ArrayList<String>(Arrays.asList(var))+", "+new ArrayList<String>(Arrays.asList(val2.symb2))+", "+bindings);
             return unify(new ArrayList<String>(Arrays.asList(var)),new ArrayList<String>(Arrays.asList(val2.symb2)), bindings);
         }
         else{ // Add to bindings list
-            //System.out.println("Add bindings");
-            //System.out.println("binding before: " + bindings);
 
             // Create new binding
             bindings.add(new Binding(var, x.get(0)));
@@ -662,4 +551,3 @@ public class Main{
         }
     }
 }
-
