@@ -1,1 +1,0 @@
-# CISC481TheoremProver

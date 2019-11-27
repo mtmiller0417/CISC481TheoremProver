@@ -1,0 +1,6 @@
+How to execute the program
+    1. cd into the 'src' folder
+    2. To compile run the command 'javac Main.java Node.java Inputs.java Predicate.java Helper.java Binding.java Clause.java'
+    3. To run the program, run the command 'java Main'
+
+* The output of the program is recorded in the OutputFiles folder
